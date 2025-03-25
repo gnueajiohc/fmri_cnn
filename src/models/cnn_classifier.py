@@ -24,12 +24,13 @@ class FmriCNNClassifier(nn.Module):
                                     padding=1))
             cnn_layers.append(nn.SiLU())
             cnn_layers.append(nn.MaxPool2d(kernel_size=2))
+            current_in_channels = current_out_channels
         
         self.cnn_layers = nn.Sequential(*cnn_layers)
         
         # after hidden layers size = (32, 32, 32)
         spatial_size = INPUT_WIDTH // (2 ** len(hidden_channels))
-        feature_size = hidden_channels[-1] * spatial_size * spatial_size
+        feature_size = current_in_channels * spatial_size * spatial_size
         
         self.out_layers = nn.Sequential(
             nn.Flatten(),

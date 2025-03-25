@@ -55,10 +55,3 @@ def get_dataloader(batch_size, train, shuffle=True):
     
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return dataloader
-    
-loader = get_dataloader(batch_size=16, train=True)
-
-for x, y in loader:
-    print(x.shape)  # [16, 3, 256, 256]
-    print(y.shape)  # [16]
-    break

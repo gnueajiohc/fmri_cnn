@@ -4,7 +4,7 @@ import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils import get_dataloader
+from utils import get_dataloader, seed_everything
 from models import FmriCNNClassifier
 
 def train_model(model, train_loader, save_name, epochs, lr, device):
@@ -62,6 +62,7 @@ def train_model(model, train_loader, save_name, epochs, lr, device):
 def main(epochs, batch_size, lr):
     """
     """
+    seed_everything()
     train_loader = get_dataloader(batch_size=batch_size, train=True)
     
     model = FmriCNNClassifier()
@@ -80,5 +81,5 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    main(epochs=args.epoch, batch_size=args.batch_size, lr=args.lr)
+    main(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr)
     
