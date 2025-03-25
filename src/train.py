@@ -5,9 +5,25 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from utils import get_dataloader, seed_everything
-from models import FmriCNNClassifier, select_model
+from models import select_model
 
-def train_model(model, train_loader, save_name, epochs, lr, device):
+def train_model(model, train_loader, save_name, epochs, lr, device, softvoting=False):
+    if softvoting:
+        views = ["axial", "coronal", "sagittal"]
+        for i, view in enumerate(views):
+            print(f"[SOFT-VOTING] Training view: {view}")
+            
+            loader = get_dataloader(batch_size=train_loader.batch_size, train=True,
+                                    width=train_loader.dataset.width, view_index=i)
+            
+            model_instance = select_model("cnn", in_channels=1, width=train_loader.dataset.width)
+            inner_save_name = f"{save_name}_{view}"
+            _train_single_model(model_instance, loader, inner_save_name, epochs, lr, device)
+    else:
+        _train_single_model(model, loader, inner_save_name, epochs, lr, device)
+        
+
+def _train_single_model(model, train_loader, save_name, epochs, lr, device):
     """
     """
     model.to(device)
@@ -68,8 +84,13 @@ def main(model, epochs, batch_size, lr, width):
     model = select_model(model, width)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
-    save_name = f"{model.__class__.__name__}_{width}"
-    train_model(model, train_loader, save_name, epochs, lr, device)
+    if model is None:
+        save_name = f"SoftVotingCNN_{width}"
+        softvoting = True
+    else:
+        save_name = f"{model.__class__.__name__}_{width}"
+        softvoting = False
+    train_model(model, train_loader, save_name, epochs, lr, device, softvoting)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="fMRI Classifier model trainer")

@@ -41,7 +41,7 @@ def main(model, batch_size, model_path, width):
 
     # 모델 파라미터 로드
     model_name = f"{model.__class__.__name__}_{width}"
-    model_path = f"results/weights/{model_name}"
+    model_path = f"results/weights/{model_name}.pth"
     model.load_state_dict(torch.load(model_path, map_location=device))
     print(f"[INFO] Loaded model from {model_path}")
 
@@ -52,8 +52,6 @@ if __name__ == "__main__":
     
     parser.add_argument("--model", type=str, default="cnn", help="Model class (default: cnn)")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for testing (default: 16)")
-    parser.add_argument("--model_path", type=str, default="results/weights/fmri_cnn_classifier.pth",
-                        help="Path to trained model weights")
     parser.add_argument("--width", type=int, default=256, help="Image width (default: 256)")
 
     args = parser.parse_args()

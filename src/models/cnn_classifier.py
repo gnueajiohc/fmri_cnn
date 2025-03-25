@@ -12,7 +12,7 @@ class FmriCNNClassifier(nn.Module):
         self,
         in_channels=3,
         hidden_channels=[8, 16, 32],
-        embedding_dimension=64,
+        embedding_dimension=128,
         dropout_rate=0.4,
         width=256,
         full=True
