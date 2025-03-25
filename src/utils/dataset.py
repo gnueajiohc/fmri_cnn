@@ -35,12 +35,12 @@ class FlankerDataset(Dataset):
                 img = self.transform(img)
             images.append(img)
 
-        input_tensor = torch.cat(images, dim=0)  # [3, 256, 256]
+        input_tensor = torch.cat(images, dim=0)  # [3, width, width]
         return input_tensor, label
 
-def get_dataloader(batch_size, train, shuffle=True):
+def get_dataloader(batch_size, train, shuffle=True, width=256):
     transform = transforms.Compose([
-        transforms.Resize((256, 256)),
+        transforms.Resize((width, width)),
         transforms.ToTensor(),
     ])
     

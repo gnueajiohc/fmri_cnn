@@ -29,12 +29,12 @@ def evaluate_model(model, test_loader, device):
     accuracy = correct / total * 100
     print(f"\n[TEST RESULT] Accuracy: {accuracy:.2f}% ({correct}/{total})")
 
-def main(batch_size, model_path):
+def main(batch_size, model_path, width):
     """
     테스트 실행
     """
     seed_everything()
-    test_loader = get_dataloader(batch_size=batch_size, train=False)
+    test_loader = get_dataloader(batch_size=batch_size, train=False, width=width)
 
     model = FmriCNNClassifier()
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for testing (default: 16)")
     parser.add_argument("--model_path", type=str, default="results/weights/fmri_cnn_classifier.pth",
                         help="Path to trained model weights")
+    parser.add_argument("--width", type=int, default=256, help="Image width (default: 256)")
 
     args = parser.parse_args()
-    main(batch_size=args.batch_size, model_path=args.model_path)
+    main(batch_size=args.batch_size, model_path=args.model_path, width=args.width)
