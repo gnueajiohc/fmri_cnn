@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from utils import get_dataloader, seed_everything
-from models import FmriCNNClassifier
+from models import FmriCNNClassifier, select_model
 
 def train_model(model, train_loader, save_name, epochs, lr, device):
     """
@@ -59,21 +59,22 @@ def train_model(model, train_loader, save_name, epochs, lr, device):
     
     print(f"[INFO] Model saved at {model_path}\n")
 
-def main(epochs, batch_size, lr, width):
+def main(model, epochs, batch_size, lr, width):
     """
     """
     seed_everything()
     train_loader = get_dataloader(batch_size=batch_size, train=True, width=width)
     
-    model = FmriCNNClassifier()
+    model = select_model(model, width)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
-    save_name = "fmri_cnn_classifier"
+    save_name = f"{model.__class__.__name__}_{width}"
     train_model(model, train_loader, save_name, epochs, lr, device)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="fMRI Classifier model trainer")
     
+    parser.add_argument("--model", type=str, default="cnn", help="Model class (default: cnn)")
     parser.add_argument("--epochs", type=int, default=10, help="Num of Epochs for training (default: 10)")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for training (default: 16)")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate for training (default: 1e-3)")
@@ -81,5 +82,5 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    main(epochs=args.epochs, batch_size=args.batch_size, lr=args.lr, width=args.width)
+    main(model=args.model, epochs=args.epochs, batch_size=args.batch_size, lr=args.lr, width=args.width)
     

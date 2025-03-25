@@ -3,7 +3,7 @@ import argparse
 import torch
 import torch.nn as nn
 from utils import get_dataloader, seed_everything
-from models import FmriCNNClassifier
+from models import FmriCNNClassifier, select_model
 
 def evaluate_model(model, test_loader, device):
     """
@@ -29,17 +29,19 @@ def evaluate_model(model, test_loader, device):
     accuracy = correct / total * 100
     print(f"\n[TEST RESULT] Accuracy: {accuracy:.2f}% ({correct}/{total})")
 
-def main(batch_size, model_path, width):
+def main(model, batch_size, model_path, width):
     """
     테스트 실행
     """
     seed_everything()
     test_loader = get_dataloader(batch_size=batch_size, train=False, width=width)
 
-    model = FmriCNNClassifier()
+    model = select_model(model, width)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # 모델 파라미터 로드
+    model_name = f"{model.__class__.__name__}_{width}"
+    model_path = f"results/weights/{model_name}"
     model.load_state_dict(torch.load(model_path, map_location=device))
     print(f"[INFO] Loaded model from {model_path}")
 
@@ -47,10 +49,12 @@ def main(batch_size, model_path, width):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate trained fMRI classifier")
+    
+    parser.add_argument("--model", type=str, default="cnn", help="Model class (default: cnn)")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for testing (default: 16)")
     parser.add_argument("--model_path", type=str, default="results/weights/fmri_cnn_classifier.pth",
                         help="Path to trained model weights")
     parser.add_argument("--width", type=int, default=256, help="Image width (default: 256)")
 
     args = parser.parse_args()
-    main(batch_size=args.batch_size, model_path=args.model_path, width=args.width)
+    main(model=args.model, batch_size=args.batch_size, model_path=args.model_path, width=args.width)
