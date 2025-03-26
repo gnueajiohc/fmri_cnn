@@ -20,7 +20,7 @@ def train_model(model, train_loader, save_name, epochs, lr, device, softvoting=F
             inner_save_name = f"{save_name}_{view}"
             _train_single_model(model_instance, loader, inner_save_name, epochs, lr, device)
     else:
-        _train_single_model(model, loader, inner_save_name, epochs, lr, device)
+        _train_single_model(model, train_loader, save_name, epochs, lr, device)
         
 
 def _train_single_model(model, train_loader, save_name, epochs, lr, device):
@@ -79,10 +79,11 @@ def main(model, epochs, batch_size, lr, width):
     """
     """
     seed_everything()
-    train_loader = get_dataloader(batch_size=batch_size, train=True, width=width)
-    
-    model = select_model(model, width)
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    train_loader = get_dataloader(batch_size=batch_size, train=True, width=width)
+    model = select_model(model, in_channels=3, width=width)
+
     
     if model is None:
         save_name = f"SoftVotingCNN_{width}"
@@ -98,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, default="cnn", help="Model class (default: cnn)")
     parser.add_argument("--epochs", type=int, default=10, help="Num of Epochs for training (default: 10)")
     parser.add_argument("--batch_size", type=int, default=16, help="Batch size for training (default: 16)")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate for training (default: 1e-3)")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate for training (default: 1e-4)")
     parser.add_argument("--width", type=int, default=256, help="Image width (default: 256)")
     
     args = parser.parse_args()
