@@ -1,7 +1,5 @@
-import os
 import argparse
 import torch
-import torch.nn as nn
 from utils import get_dataloader, seed_everything
 from models import select_model
 
@@ -92,6 +90,8 @@ def main(model, batch_size, width):
             model.load_state_dict(torch.load(model_path, map_location=device))
             print(f"[INFO] Loaded model from {model_path}")
             models.append(model)
+            
+        evaluate_softvoting(models, loaders, device)
     else:
         # load data
         test_loader = get_dataloader(batch_size=batch_size, train=False, width=width)
