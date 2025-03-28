@@ -37,7 +37,7 @@ def main(model, batch_size, width):
         test_loader = get_dataloader(batch_size=batch_size, train=False, width=width)
         
         # Load model and weights
-        model = select_model(model=model, width=width)
+        model = select_model(model=model, in_channels=3, width=width)
         model_name = f"{model.__class__.__name__}_{width}"
         model_path = f"results/weights/{model_name}.pth"
         model.load_state_dict(torch.load(model_path, map_location=device))
