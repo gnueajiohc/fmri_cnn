@@ -7,6 +7,15 @@ NUM_CLASSES = 2
 # -----------------------------------
 class FmriCNNClassifier(nn.Module):
     """
+    fMRI CNN Classifier Model
+    
+    Args:
+        in_channels (int): the num of input image channels
+        hidden_channels (list[int]): the num of hidden layers' channels
+        embedding_dimension (int): the dimensions of embedding after CNN
+        dropout_rate (float): dropout rate
+        width (int): width of image
+        full (bool): use FC layer after embedding if True
     """
     def __init__(
         self,
@@ -19,6 +28,7 @@ class FmriCNNClassifier(nn.Module):
     ):
         super(FmriCNNClassifier, self).__init__()
         
+        # list for hidden convolution layers
         cnn_layers = []
         current_in_channels = in_channels
         
@@ -39,14 +49,14 @@ class FmriCNNClassifier(nn.Module):
         spatial_size = width // (2 ** len(hidden_channels))
         feature_size = current_in_channels * spatial_size * spatial_size
         
-        if full is True:
+        if full is True: # FC layer to NUM_CLASSES
             self.out_layers = nn.Sequential(
                 nn.Flatten(),
                 nn.Linear(feature_size, embedding_dimension),
                 nn.SiLU(),
                 nn.Linear(embedding_dimension, NUM_CLASSES)
             )
-        else:
+        else: # just embedding
             self.out_layers = nn.Sequential(
                 nn.Flatten(),
                 nn.Linear(feature_size, embedding_dimension),
@@ -54,5 +64,6 @@ class FmriCNNClassifier(nn.Module):
 
         
     def forward(self, x):
+        """forward propagation function"""
         out = self.cnn_layers(x)
         return self.out_layers(out)

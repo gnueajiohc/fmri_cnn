@@ -14,6 +14,16 @@ TRAIN_CSV = DATA_DIR / "train.csv"
 TEST_CSV = DATA_DIR / "test.csv"
 
 class FlankerDataset(Dataset):
+    """
+    Flanker Dataset
+    
+    Args:
+        csv_file (str): path to csv file
+        image_dir (str): path to image directory
+        width (int): width of image
+        view_index (int): select specific view 
+        transform (Transforms): apply transform
+    """
     def __init__(self, csv_file, image_dir, width, view_index, transform=None):
         self.data = pd.read_csv(csv_file)
         self.image_dir = image_dir
@@ -22,9 +32,11 @@ class FlankerDataset(Dataset):
         self.view_index = view_index
     
     def __len__(self):
+        """ return length """
         return len(self.data)
     
     def __getitem__(self, index):
+        """ return specific index """
         row = self.data.iloc[index]
         sample_id, label = row["sample_id"], row["label"]
         views = ["axial", "coronal", "sagittal"]
@@ -49,11 +61,30 @@ class FlankerDataset(Dataset):
             
         return input_tensor, label
 
-def get_dataloader(batch_size, train, shuffle=True, width=256, view_index=None):
+def get_dataloader(batch_size, train, shuffle=True, width=256, seed=42, view_index=None):
+    """
+    Get train_loader, test_loader from the dataset
+    
+    Args:
+        batch_size (int): batch size
+        train (bool): train dataset or test dataset
+        shuffle (bool): shuffle dataset if True
+        width (int): width of image
+        seed (int): random seed
+        view_index (int): select specific view 
+
+    Returns:
+        dataloader (DataLoader): data loader
+    """
+    # transform into (width x width)
     transform = transforms.Compose([
         transforms.Resize((width, width)),
         transforms.ToTensor(),
     ])
+    
+    # seed
+    generator = torch.Generator()
+    generator.manual_seed(seed)
     
     if train is True:
         dataset = FlankerDataset(csv_file=TRAIN_CSV,
@@ -68,5 +99,5 @@ def get_dataloader(batch_size, train, shuffle=True, width=256, view_index=None):
                                  view_index=view_index,
                                  transform=transform)
     
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, generator=generator)
     return dataloader

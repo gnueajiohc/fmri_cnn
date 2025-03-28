@@ -2,6 +2,7 @@ from .cnn_classifier import FmriCNNClassifier
 from .multiview_classifier import FmriMultiviewClassifier
 
 def select_model(model, in_channels, width):
+    """return denoising model class matching 'model_name'"""
     if model == "cnn":
         return FmriCNNClassifier(in_channels=in_channels, width=width)
     elif model == "multiview":
